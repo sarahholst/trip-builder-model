@@ -34,16 +34,16 @@ with col2:
 with col3:
     high_use = st.number_input("High Trip Builder Use %", min_value=0.0, max_value=100.0, value=40.0, step=0.5)
 with col4:
-    tb_conversion = st.number_input("TB Conversion %", min_value=0.0, max_value=100.0, value=45.0, step=0.5)
+    tb_conversion_increase = st.number_input("TB Conversion % Increase", min_value=0.0, max_value=500.0, value=20.0, step=0.5)
 with col5:
     tb_aov_increase = st.number_input("TB AOV % Increase", min_value=0.0, max_value=500.0, value=20.0, step=1.0)
 
-def calculate_scenario(df, trip_builder_use_pct, tb_conversion_pct, tb_aov_increase_pct):
+def calculate_scenario(df, trip_builder_use_pct, tb_conversion_increase_pct, tb_aov_increase_pct):
     working = df.copy()
 
     working["Baseline Conversion"] = working["Conversion %"] / 100
     working["Trip Builder Use"] = trip_builder_use_pct / 100
-    working["TB Conversion"] = tb_conversion_pct / 100
+    working["TB Conversion"] = working["Baseline Conversion"] * (1 + (tb_conversion_increase_pct / 100))
     working["TB AOV Multiplier"] = 1 + (tb_aov_increase_pct / 100)
 
     working["Baseline GMV"] = working["Users"] * working["Baseline Conversion"] * working["AOV"]
@@ -69,9 +69,9 @@ def calculate_scenario(df, trip_builder_use_pct, tb_conversion_pct, tb_aov_incre
         "lift_pct": lift_pct
     }
 
-low = calculate_scenario(edited_df, low_use, tb_conversion, tb_aov_increase)
-mid = calculate_scenario(edited_df, mid_use, tb_conversion, tb_aov_increase)
-high = calculate_scenario(edited_df, high_use, tb_conversion, tb_aov_increase)
+low = calculate_scenario(edited_df, low_use, tb_conversion_increase, tb_aov_increase)
+mid = calculate_scenario(edited_df, mid_use, tb_conversion_increase, tb_aov_increase)
+high = calculate_scenario(edited_df, high_use, tb_conversion_increase, tb_aov_increase)
 
 st.subheader("Scenario Summary")
 c1, c2, c3 = st.columns(3)
